@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.hashers import check_password,make_password
 from .helper import generate_str,status,nstatus
 from datetime import timedelta
+from .tasks import test,send_email,message
 
 
 # Create your views here.
@@ -26,7 +27,7 @@ def view_username(request):
         if not user:
             return status({"status":False,"message":"user not found"})
         user = user[0]
-        send_mail("view username",f"Your username is {user.username}","noreply@email.heisepowlesspickem.com",[user.email],fail_silently = False)
+        send_email.delay("view username",f"Your username is {user.username}","noreply@email.heisepowlesspickem.com",[user.email],fail_silently = False)
         return status({"status":True,"message":"Email Sent"})
 def reset_password(request):
     if request.method == "POST":
@@ -41,7 +42,7 @@ def reset_password(request):
         #creates a random string and hashes it so it is hard for someone to get access to everyones account if they hacked into the db
         random_str = generate_str()
         temp = Temp.objects.create(key = make_password(random_str),user = user)
-        send_mail("Reset Password",f"Copy and paste this link in your browser to reset your password it will expire in 15 minutes https://heisepowlesspickem.com/reset_password?travis={temp.uuid}&scott={random_str}",'noreply@email.heisepowlesspickem.com',[user.email],fail_silently=False)
+        send_email.delay("Reset Password",f"Copy and paste this link in your browser to reset your password it will expire in 15 minutes https://heisepowlesspickem.com/reset_password?travis={temp.uuid}&scott={random_str}",'noreply@email.heisepowlesspickem.com',[user.email],fail_silently=False)
         return nstatus(status=True,message="Email Successfully Sent")
     else:
         return render(request,"chevy.html",{"type":"Forgot Password"})
@@ -86,6 +87,8 @@ def reseted_password(request):
         user.save()
         return status({"status":True,"message":"Success Password Reset"})
 def standing_api(request):
+    #calculate stats before load
+    Student.calculate()
     try:
         dorm = request.GET['dorm']
     except:
@@ -124,10 +127,12 @@ def standing(request,dorm):
     return render(request,"standings.html",{"dorm":dorm})
 @login_req()
 def standings(request):
+    #calculates wins
+    Student.calculate()
     user = Student.objects.get(username = request.user)
     students = Student.objects.order_by("-score").all()[:3]
     dorm_students = Student.objects.filter(dorm = user.dorm).order_by("-score").all()[:3]
-    return render(request,"standings-home.html",{"dorms":dorm_students,"students":students,"user":Student.gimmedorms(user.dorm)})
+    return render(request,"standings-home.html",{"dorms":dorm_students,"students":students,"user":Student.gimmedorms(user.dorm),"winning":Student.winningDivision()['name']})
 
 def error(request,value,**kwargs):
     keys = kwargs.keys()
@@ -237,7 +242,8 @@ def pick(request):
             return error(request,"Missing Required Field",url = "/pick",title = "Go Back")
         user = Student.objects.get(username = request.user)
         week = Weeks.objects.filter(year = "2020").order_by("-id").all()[0]
-        pick = Pick.objects.filter(picker = user).exclude(week = week).all()
+        pick = Pick.objects.filter(picker = user,team__name=team).exclude(week = week).all()
+        print(pick)
         if pick:
             return error(request,"You Have Already Picked This Team",url = "/pick",title = "Go Back")
         team = Team.objects.get(uuid = team)

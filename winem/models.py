@@ -44,6 +44,7 @@ class Vote(models.Model):
 def fourmore(obj):
     bruh = obj.avgmarg()
     return obj.win + (bruh/1000)
+
 class Student(User):
     win = models.IntegerField(default = 0)
     loss = models.IntegerField(default = 0)
@@ -52,6 +53,41 @@ class Student(User):
     dorm = models.CharField(max_length=10,blank = True,default = "")
     uuid = models.UUIDField(default = uuid4)
     fav_team = models.ForeignKey('Team',on_delete = models.PROTECT,name = "users")
+    phone = models.TextField()
+    stop = models.BooleanField(default= False)
+    def calculate():
+        students = Student.objects.all()
+        for student in students:
+            student.calculateWins()
+            student.calculateScore()
+    def winningDivision():
+        dorms = Student.gimmedorms()
+        for dorm in dorms:
+            students = Student.objects.filter(dorm = dorm['abbr'])
+            win = 0
+            score = 0
+            for student in students:
+                win += student.win
+                score += student.score
+            win/= len(students)
+            score /= len(students)
+            dorm['win'] = win
+            dorm['score'] = score
+        #selection sort
+        for i in range(len(dorms)-1):
+            switch = i
+            for j in range(len(dorms) - i-1):
+                if dorms[j]['win'] < dorms[j+1]['win']:
+                    switch = j + 1
+                elif dorms[j]['win'] == dorms[j+1]['win']:
+                    if dorms[j]['score'] < dorms[j+1]['score']:
+                        switch = j + 1
+            if i != switch:
+                temp = dorms[i]
+                dorms[i] = dorms[switch]
+                dorms[switch] = temp
+        return dorms[0]
+
     def image(self):
         return self.users.image()
     def gimmedorms(bruh = None):
@@ -103,12 +139,13 @@ class Student(User):
         picks = Pick.objects.filter(picker = self).all()
         for pick in picks:
             stat = pick.status()
-            if stat == "win":
-                win += 1
-            elif stat == "tie":
-                tie += 1
-            else:
-                loss +=1
+            if stat != "nocontest":
+                if stat == "win":
+                    win += 1
+                elif stat == "tie":
+                    tie += 1
+                else:
+                    loss +=1
         self.win = win
         self.loss = loss
         self.tie = tie
@@ -123,11 +160,8 @@ class Student(User):
             score += game.home_score - game.away_score if pick.home else game.away_score - game.home_score
         self.score = score
         self.save()
-
-
-
     def avgmarg(self):
-        picks = Pick.objects.filter(picker = self).all()
+        picks = Pick.objects.filter(picker = self,).exclude(week = Weeks.objects.order_by('-id').all()[0]).all()
         dream = 0
         for pick in picks:
             game = pick.game()
@@ -188,7 +222,7 @@ class Game(models.Model):
             if self.home_score == 0:
                 return "nocontest"
             return "tie"
-        elif team == self.home and self.home_score > self.away_score:
+        elif (team == self.home and self.home_score > self.away_score) or (team != self.home and self.home_score < self.away_score):
             return "win"
         else:
             return "loss"

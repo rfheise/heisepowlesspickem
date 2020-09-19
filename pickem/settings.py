@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'bi-*2%g#4i28w7c-jol&52_bg*0xx!ced=m7dq5g5#1%-!xlz#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['heisepowlesspickem.com','www.heisepowlesspickem.com']
+ALLOWED_HOSTS = ['heisepowlesspickem.com','www.heisepowlesspickem.com','127.0.0.1']
 
 
 # Application definition
@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'winem.apps.WinemConfig'
+    'winem.apps.WinemConfig',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -113,6 +114,10 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+CELERY_ENABLE_UTC = True
+
+CELERY_TIMEZONE = 'America/Indianapolis'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
