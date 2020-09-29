@@ -1,11 +1,13 @@
 from __future__ import absolute_import
 from celery import shared_task,Celery
-from .models import Student,Pick,Weeks
+from .models import Student,Pick,Weeks,Game,Team
 from django.core.mail import send_mail
 from time import sleep
 from twilio.rest import Client
 from celery.schedules import crontab
-
+import requests
+from django.utils import timezone
+from . import helper
 # app = Celery()
 
 
@@ -28,6 +30,41 @@ auth_token = '978ebe297760ba827f942f86b71086c8'
 #         'args': ("wow grape","+15742073299")
 #     },
 # }
+@shared_task
+def update_week():
+    req = requests.get("https://nflcdns.nfl.com/liveupdate/scorestrip/ss.json")
+    if req.status_code == 200:
+        req = req.json()
+    else:
+        return
+    current_week = Weeks.objects.filter(year=2020).order_by("-id").all()[0]
+    if current_week.week == req['w']:
+        return
+    week = Weeks.objects.create(year=2020,week=req['w'])
+    for r in req['gms']:
+        bruh = {'home_score':r['hs'],"away_score":r['vs'],"week":week}
+        bruh['home'] = Team.objects.get(abbr = r['h'])
+        bruh['away'] = Team.objects.get(abbr = r['v'])
+        bruh['time'] = helper.date(r['d'].upper(),*helper.convert_time(r['t'],r['q']))
+        Game.objects.create(**bruh)
+
+@shared_task
+def update_scores():
+    current_week = Weeks.objects.filter(year=2020).order_by("-id").all()[0]
+    req = requests.get("https://nflcdns.nfl.com/liveupdate/scorestrip/ss.json")
+    if req.status_code == 200:
+        req = req.json()
+    else:
+        return
+    for r in req['gms']:
+        game = Game.objects.get(week=current_week,home__abbr=r['h'])
+        game.home_score = r['hs']
+        game.away_score = r['vs']
+    Student.calculate()
+
+
+
+
 
 @shared_task
 def test(email):

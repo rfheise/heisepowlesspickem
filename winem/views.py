@@ -94,7 +94,7 @@ def standing_api(request):
     except:
         return status({"status":False,"message":"missing required field"})
     if dorm == "all":
-        students = Student.objects.order_by('-score').order_by("-win").all()
+        students = Student.objects.order_by("-win").order_by('-score').all()
         title = "All"
     else:
         title = Student.gimmedorms(dorm)
@@ -102,7 +102,7 @@ def standing_api(request):
             return HttpResponseNotFound('Dorm Not Found')
         else:
             title = title['name']
-        students = Student.objects.filter(dorm = dorm).order_by('-score').order_by("-win").all()
+        students = Student.objects.filter(dorm = dorm).order_by("-win","-score").all()
     if not students:
         return HttpResponseNotFound('Dorm Not Found')
     st = []

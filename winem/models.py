@@ -161,12 +161,15 @@ class Student(User):
         self.score = score
         self.save()
     def avgmarg(self):
-        picks = Pick.objects.filter(picker = self,).exclude(week = Weeks.objects.order_by('-id').all()[0]).all()
+        picks = Pick.objects.filter(picker = self,).all()
         dream = 0
+        picks_to_count = 0
         for pick in picks:
             game = pick.game()
-            dream += game.home_score - game.away_score if pick.home else game.away_score - game.home_score
-        return 0 if len(picks) == 0 else dream/len(picks)
+            if game.winlosstie(pick.team) != "nocontest":
+                picks_to_count += 1
+                dream += game.home_score - game.away_score if pick.home else game.away_score - game.home_score
+        return 0 if len(picks) == 0 else dream/picks_to_count
 
 
 class Team(models.Model):
@@ -175,6 +178,7 @@ class Team(models.Model):
     uuid = models.UUIDField(default = uuid4)
     by = models.IntegerField()
     banned = models.BooleanField(default = False)
+    abbr = models.CharField(max_length=3)
     def __str__(self):
         return f"{self.name}-{self.division()}"
     def division(self):

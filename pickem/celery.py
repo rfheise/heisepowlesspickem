@@ -23,10 +23,14 @@ app.conf.beat_schedule = {
         'task': 'winem.tasks.let_games_begin',
         'schedule': crontab(minute="0",hour="13",day_of_week="sun"),
     },
-    "test-message": {
-        "task": 'winem.tasks.message',
-        "schedule": crontab(minute="12",hour="5",day_of_week="sun"),
-    }
+    'update_scores':{
+        'task': 'winem.tasks.update_scores',
+        'schedule': crontab(minute="0",hour="3",day_of_week="tue")
+    },
+    'update_week':{
+        'task': 'winem.tasks.update_week',
+        'schedule':crontab(minute="0",hour="8",day_of_week="wed")
+    },
 }
 
 
