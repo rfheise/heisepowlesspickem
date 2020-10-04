@@ -12,8 +12,8 @@ from . import helper
 
 
 
-account_sid = 'ACbfc52299bb0bb081dd7cfbcc81e68728'
-auth_token = '978ebe297760ba827f942f86b71086c8'
+account_sid = 'key'
+auth_token = 'key'
 
 # @app.on_after_configure.connect
 # def setup_periodic_tasks(sender, **kwargs):

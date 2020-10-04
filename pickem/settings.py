@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'bi-*2%g#4i28w7c-jol&52_bg*0xx!ced=m7dq5g5#1%-!xlz#'
+SECRET_KEY = 'secret_key'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['heisepowlesspickem.com','www.heisepowlesspickem.com','127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -122,14 +122,14 @@ CELERY_TIMEZONE = 'America/Indianapolis'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Host for sending e-mail.
-EMAIL_HOST = 'smtp.mailgun.org'
+EMAIL_HOST = 'mail_host'
 
 # Port for sending e-mail.
 EMAIL_PORT = 587
 
 # Optional SMTP authentication information for EMAIL_HOST.
-EMAIL_HOST_USER = 'noreply@email.heisepowlesspickem.com'
-EMAIL_HOST_PASSWORD = '3994b14f1cf9bde9d4b0d2150d39b120-0f472795-d46db33b'
+EMAIL_HOST_USER = 'noreply@fakeemail.com'
+EMAIL_HOST_PASSWORD = 'Password'
 EMAIL_USE_TLS = False
 
 # Static files (CSS, JavaScript, Images)
