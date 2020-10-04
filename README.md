@@ -18,8 +18,8 @@ You'll also have to edit winem/tasks.py with your own twilio api_keys if you wan
 Then run "python manage.py runserver" and start your celery workers and you should be good to go.
 
 
-#Credit Where Credit Is Due
-This project uses twilio for automated text messages.
-This project uses mailgun to send and recieve emails.
-This project is built using django.
-This project used webflow as a GUI to create some of the html and css.
+# Credit Where Credit Is Due
+- This project uses twilio for automated text messages.
+- This project uses mailgun to send and recieve emails.
+- This project is built using django.
+- This project used webflow as a GUI to create some of the html and css.
