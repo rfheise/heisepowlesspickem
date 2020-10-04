@@ -29,7 +29,7 @@ app.conf.beat_schedule = {
     },
     'update_week':{
         'task': 'winem.tasks.update_week',
-        'schedule':crontab(minute="0",hour="8",day_of_week="wed")
+        'schedule':crontab(minute="0",hour="10",day_of_week="thu")
     },
 }
 

@@ -60,6 +60,7 @@ def update_scores():
         game = Game.objects.get(week=current_week,home__abbr=r['h'])
         game.home_score = r['hs']
         game.away_score = r['vs']
+        game.save()
     Student.calculate()
 
 

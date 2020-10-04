@@ -249,11 +249,10 @@ class Pick(models.Model):
         game = self.game()
         return game.winlosstie(self.team)
     def color(self):
-        score = self.score()
-        score = score.split("-")
-        if score[0] == score[1]:
+        yes = self.game().winlosstie(self.team)
+        if yes == "tie" or yes == "nocontest":
             return "gray"
-        elif score[0] > score[1]:
+        elif yes == "win":
             return "#1aff00"
         else:
             return "red"
