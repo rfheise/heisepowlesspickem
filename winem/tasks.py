@@ -15,6 +15,7 @@ from . import helper
 account_sid = 'key'
 auth_token = 'key'
 
+
 # @app.on_after_configure.connect
 # def setup_periodic_tasks(sender, **kwargs):
 #      'add-every-monday-morning': {
@@ -57,6 +58,7 @@ def update_scores():
     else:
         return
     for r in req['gms']:
+        print(r['h'])
         game = Game.objects.get(week=current_week,home__abbr=r['h'])
         game.home_score = r['hs']
         game.away_score = r['vs']

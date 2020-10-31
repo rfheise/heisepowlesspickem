@@ -4,6 +4,7 @@ from django.http import HttpResponse
 import json
 import datetime
 from django.utils import timezone
+from calendar import monthrange
 def generate_str(x=30):
     str =""
     for i in range(x):
@@ -46,4 +47,10 @@ def date(day,hour,minute):
     wrld = now.weekday() + 1
     if(wrld > juice):
         juice += 7
-    return datetime.datetime(day = now.day+juice-wrld,hour = hour,minute=minute,year=2020,month=now.month)
+    days = now.day+juice-wrld
+    month = now.month
+    if (days > monthrange(2020,now.month)[1]):
+        days -= monthrange(2020,now.month)[1]
+        month += 1
+
+    return datetime.datetime(day = days,hour = hour,minute=minute,year=2020,month=month)
